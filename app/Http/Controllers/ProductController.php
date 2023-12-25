@@ -95,4 +95,28 @@ class ProductController extends Controller
         return response()->json(['message' => 'Product deleted successfully']);
     }
 
+        /**
+     * Search for products by name.
+     *
+     * @param  string  $name
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function searchByName($name)
+    {
+        if (!$name) {
+            return response()->json(['error' => 'Product name is required for search'], 422);
+        }
+
+        $products = Product::where('name', 'like', "%$name%")->get();
+
+        if ($products->isEmpty()) {
+            return response()->json(['message' => 'No products found with the given name'], 422);
+        }
+
+        return response()->json(['results' => $products]);
+    }
+
+
+
 }
+

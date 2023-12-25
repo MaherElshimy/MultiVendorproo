@@ -30,6 +30,13 @@ Route::patch('/products/{id}', [ProductController::class, 'update']);
 // DELETE: Delete a specific product by ID
 Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
+// Search : Search a specific product by name
+
+Route::get('/products/search/{name}', [ProductController::class, 'searchByName']);
+
+
+
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
