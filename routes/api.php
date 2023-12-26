@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +34,16 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 
+/*//////////////////////////////////////////////////////////
+ * //////////////// Special Catagory ///////////////////////
+ */
+
+// Show all categories
+Route::get('/categories', [CategoryController::class, 'index']);
+
+// Show a specific category by ID
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+
 
 
 /*//////////////////////////////////////////////////////////
@@ -54,6 +65,16 @@ Route::get('/products/search/{name}', [ProductController::class, 'searchByName']
  * ////////////////////////////////////////////////////////
  */
 Route::group(['middleware' => ['auth:sanctum']], function() {
+
+    // Create a new category
+    Route::post('/categories', [CategoryController::class, 'store']);
+
+    // Update a specific category by ID
+    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+
+    // Delete a specific category by ID
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+
     // POST: Create a new product
     Route::post('/products', [ProductController::class, 'create']);
 

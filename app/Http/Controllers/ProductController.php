@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 use App\Models\Product;
+use App\Models\Category;
+use Illuminate\Database\Eloquent\Builder;
 
 use Illuminate\Http\Request;
 
@@ -12,7 +14,10 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::all();
+        $products = Product::with(['category' => function ($query) {
+            $query->select('id', 'category_name');
+        }])->get(['id', 'name', 'slug', 'description', 'price', 'category_id']);
+
         return response()->json($products);
     }
 
@@ -21,10 +26,10 @@ class ProductController extends Controller
          */
         public function show($id)
         {
-            $product = Product::find($id);
+            $product = Product::with('category')->find($id);
 
             if (!$product) {
-                return response()->json(['error' => 'Product not found'], 422);
+                return response()->json(['error' => 'Product not found'], 404);
             }
 
             return response()->json($product);
@@ -43,6 +48,7 @@ class ProductController extends Controller
             'slug' => 'required',
             'description' => 'nullable',
             'price' => 'required|numeric',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         $product = Product::create($validatedData);
@@ -62,7 +68,7 @@ class ProductController extends Controller
         $product = Product::find($id);
 
         if (!$product) {
-            return response()->json(['error' => 'Product not found'], 422);
+            return response()->json(['error' => 'Product not found'], 404);
         }
 
         $validatedData = $request->validate([
@@ -70,12 +76,14 @@ class ProductController extends Controller
             'slug' => 'required',
             'description' => 'nullable',
             'price' => 'required|numeric',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         $product->update($validatedData);
 
         return response()->json(['message' => 'Product updated successfully', 'product' => $product]);
     }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -87,7 +95,7 @@ class ProductController extends Controller
         $product = Product::find($id);
 
         if (!$product) {
-            return response()->json(['error' => 'Product not found'], 400);
+            return response()->json(['error' => 'Product not found'], 404);
         }
 
         $product->delete();
@@ -104,19 +112,24 @@ class ProductController extends Controller
     public function searchByName($name)
     {
         if (!$name) {
-            return response()->json(['error' => 'Product name is required for search'], 422);
+            return response()->json(['error' => 'Search term is required'], 422);
         }
 
-        $products = Product::where('name', 'like', "%$name%")->get();
+        $products = Product::with('category')
+            ->where(function (Builder $query) use ($name) {
+                $query->where('name', 'like', "%$name%")
+                    ->orWhereHas('category', function (Builder $query) use ($name) {
+                        $query->where('category_name', 'like', "%$name%");
+                    });
+            })
+            ->get();
 
         if ($products->isEmpty()) {
-            return response()->json(['message' => 'No products found with the given name'], 422);
+            return response()->json(['message' => 'No products found with the given search term'], 422);
         }
 
         return response()->json(['results' => $products]);
-
     }
-
 
 
 }
