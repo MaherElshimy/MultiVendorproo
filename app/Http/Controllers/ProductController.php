@@ -9,32 +9,46 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    $products = Product::with(['category' => function ($query) {
+        $query->select('id', 'category_name');
+    }])->get(['id', 'name', 'description', 'price', 'color', 'Size', 'Weight', 'quantity', 'Discount', 'Brand', 'category_id']);
+
+    return response()->json($products);
+}
+
     /**
-     * Display a listing of the resource.
+     * Display the specified resource.
      */
-    public function index()
+    public function show($id)
     {
-        $products = Product::with(['category' => function ($query) {
+        $product = Product::with(['category' => function ($query) {
             $query->select('id', 'category_name');
-        }])->get(['id', 'name', 'slug', 'description', 'price', 'category_id']);
+        }])->find($id);
 
-        return response()->json($products);
-    }
-
-        /**
-         * Display the specified resource.
-         */
-        public function show($id)
-        {
-            $product = Product::with('category')->find($id);
-
-            if (!$product) {
-                return response()->json(['error' => 'Product not found'], 404);
-            }
-
-            return response()->json($product);
+        if (!$product) {
+            return response()->json(['error' => 'Product not found'], 404);
         }
 
+        return response()->json([
+            'id' => $product->id,
+            'name' => $product->name,
+            'description' => $product->description,
+            'price' => $product->price,
+            'color' => $product->color,
+            'Size' => $product->Size,
+            'Weight' => $product->Weight,
+            'quantity' => $product->quantity,
+            'Discount' => $product->Discount,
+            'Brand' => $product->Brand,
+            'category_id' => $product->category_id,
+            'category' => $product->category,
+            ]);
+    }
     /**
      * Store a newly created resource in storage.
      *
@@ -45,10 +59,16 @@ class ProductController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required',
-            'slug' => 'required',
             'description' => 'nullable',
             'price' => 'required|numeric',
             'category_id' => 'nullable|exists:categories,id',
+            'color' => 'nullable',
+            'Size' => 'nullable',
+            'Weight' => 'nullable|numeric',
+            'quantity' => 'nullable|integer',
+            'Discount' => 'nullable|numeric',
+            'Brand' => 'nullable',
+            'commission_rate' => 'nullable|numeric',
         ]);
 
         $product = Product::create($validatedData);
@@ -73,10 +93,16 @@ class ProductController extends Controller
 
         $validatedData = $request->validate([
             'name' => 'required',
-            'slug' => 'required',
             'description' => 'nullable',
             'price' => 'required|numeric',
             'category_id' => 'nullable|exists:categories,id',
+            'color' => 'nullable',
+            'Size' => 'nullable',
+            'Weight' => 'nullable|numeric',
+            'quantity' => 'nullable|integer',
+            'Discount' => 'nullable|numeric',
+            'Brand' => 'nullable',
+            'commission_rate' => 'nullable|numeric',
         ]);
 
         $product->update($validatedData);
@@ -103,7 +129,7 @@ class ProductController extends Controller
         return response()->json(['message' => 'Product deleted successfully']);
     }
 
-        /**
+    /**
      * Search for products by name.
      *
      * @param  string  $name
