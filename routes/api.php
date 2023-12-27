@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\WishlistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -84,6 +85,12 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
 
     // DELETE: Delete a specific product by ID
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+
+
+    // WishLists Is Here.
+    Route::post('/wishlist/add/{productId}', [WishlistController::class, 'addToWishlist']);
+    Route::delete('/wishlist/remove/{productId}', [WishlistController::class, 'removeFromWishlist']);
+
 
     // Log Out
     Route::post('/logout', [AuthController::class, 'logout']);
