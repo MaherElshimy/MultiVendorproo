@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -91,6 +92,10 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     Route::post('/wishlist/add/{productId}', [WishlistController::class, 'addToWishlist']);
     Route::delete('/wishlist/remove/{productId}', [WishlistController::class, 'removeFromWishlist']);
 
+    // Orders Is Here.
+    Route::post('/orders/place', [OrderController::class, 'placeOrder']);
+    Route::get('/orders/{id}', [OrderController::class, 'getOrderDetails']);
+    Route::post('/orders/{id}/cancel', [OrderController::class, 'cancelOrder']);
 
     // Log Out
     Route::post('/logout', [AuthController::class, 'logout']);
