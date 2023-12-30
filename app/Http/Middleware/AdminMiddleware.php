@@ -13,11 +13,21 @@ class AdminMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    // public function handle(Request $request, Closure $next): Response
+    // {
+    //     if (auth()->user()->tokenCan('role:admin')) {
+    //         return $next($request);
+    //     }
+    //     return response()->json('Not Authorized', 401);
+    // }
+
+    public function handle(Request $request, Closure $next)
     {
-        if (auth()->user()->tokenCan('role:admin')) {
+        if ($request->user() && $request->user()->isAdmin()) {
             return $next($request);
         }
-        return response()->json('Not Authorized', 401);
+
+        abort(403, 'Unauthorized');
     }
+
 }
