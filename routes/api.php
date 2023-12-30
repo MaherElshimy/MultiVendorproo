@@ -7,6 +7,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\VendorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +32,15 @@ use App\Http\Controllers\OrderController;
 /*
  * ////////// Authentication routes ///////////////////////
  */
+Route::post('/admin/register', [AdminController::class, 'register']);
+Route::post('/admin/login', [AdminController::class, 'login']);
+
+
+
+Route::post('/vendor/register', [VendorController::class, 'register']);
+Route::post('/vendor/login', [VendorController::class, 'login']);
+
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -109,3 +120,12 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// //// Only for users
+// Route::middleware(['auth:sanctum', 'type.user'])->group(function () {
+//     Route::get('/users/orders', [OrderController::class, 'orders']);
+// });
+// // Only for admins
+// Route::middleware(['auth:sanctum', 'type.admin'])->group(function () {
+//   Route::get('/admins/categories', [CategoryController::class, 'orders']);
+// });
