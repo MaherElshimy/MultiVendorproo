@@ -21,6 +21,57 @@ use App\Http\Controllers\VendorController;
 |
 */
 
+// //// Only for users
+// Route::middleware(['auth:sanctum', 'type.user'])->group(function () {
+//     Route::get('/users/orders', [OrderController::class, 'orders']);
+// });
+
+/*
+ * ////////// Authentication routes ///////////////////////
+ */
+
+
+
+// Only for admins
+Route::middleware(['auth:admins'])->group(function () {
+    // Create a new category
+    Route::post('/categories', [CategoryController::class, 'store']);
+    // Update a specific category by ID
+    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+    // Delete a specific category by ID
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+});
+
+// Only for vendors
+Route::middleware(['auth:vendors'])->group(function () {
+    // Delete the duplicated category routes from here
+    // POST: Create a new product
+    Route::post('/products', [ProductController::class, 'create']);
+    // PUT/PATCH: Update a specific product by ID
+    Route::put('/products/{id}', [ProductController::class, 'update']);
+    Route::patch('/products/{id}', [ProductController::class, 'update']);
+    // DELETE: Delete a specific product by ID
+    Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+});
+
+
+
+Route::post('/admin/register', [AdminController::class, 'register']);
+Route::post('/admin/login', [AdminController::class, 'login']);
+Route::post('/admin/logout', [AdminController::class, 'logout']);
+
+
+
+Route::post('/vendor/register', [VendorController::class, 'register']);
+Route::post('/vendor/login', [VendorController::class, 'login']);
+Route::post('/vendor/logout', [VendorController::class, 'logout']);
+
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
+
+
 
 
 /*
@@ -28,22 +79,6 @@ use App\Http\Controllers\VendorController;
  * /////////////////// Public Routes ///////////////////////
  * ////////////////////////////////////////////////////////
  */
-
-/*
- * ////////// Authentication routes ///////////////////////
- */
-Route::post('/admin/register', [AdminController::class, 'register']);
-Route::post('/admin/login', [AdminController::class, 'login']);
-
-
-
-Route::post('/vendor/register', [VendorController::class, 'register']);
-Route::post('/vendor/login', [VendorController::class, 'login']);
-
-
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-
 
 
 
@@ -79,25 +114,6 @@ Route::get('/products/search/{name}', [ProductController::class, 'searchByName']
  */
 Route::group(['middleware' => ['auth:sanctum']], function() {
 
-    // Create a new category
-    Route::post('/categories', [CategoryController::class, 'store']);
-
-    // Update a specific category by ID
-    Route::put('/categories/{id}', [CategoryController::class, 'update']);
-
-    // Delete a specific category by ID
-    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
-
-    // POST: Create a new product
-    Route::post('/products', [ProductController::class, 'create']);
-
-    // PUT/PATCH: Update a specific product by ID
-    Route::put('/products/{id}', [ProductController::class, 'update']);
-    Route::patch('/products/{id}', [ProductController::class, 'update']);
-
-    // DELETE: Delete a specific product by ID
-    Route::delete('/products/{id}', [ProductController::class, 'destroy']);
-
 
     // WishLists Is Here.
     Route::post('/wishlist/add/{productId}', [WishlistController::class, 'addToWishlist']);
@@ -108,24 +124,6 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     Route::get('/orders/{id}', [OrderController::class, 'getOrderDetails']);
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancelOrder']);
 
-    // Log Out
-    Route::post('/logout', [AuthController::class, 'logout']);
-
 
 
 });
-
-
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-// //// Only for users
-// Route::middleware(['auth:sanctum', 'type.user'])->group(function () {
-//     Route::get('/users/orders', [OrderController::class, 'orders']);
-// });
-// // Only for admins
-// Route::middleware(['auth:sanctum', 'type.admin'])->group(function () {
-//   Route::get('/admins/categories', [CategoryController::class, 'orders']);
-// });

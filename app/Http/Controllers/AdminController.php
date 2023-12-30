@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Admin;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules; // Add this line
+use Illuminate\Validation\Rules;
+use Illuminate\Validation\ValidationException; // Add this line
 
 use Illuminate\Http\Request;
 
@@ -53,5 +54,17 @@ class AdminController extends Controller
             'admin' => $admin,
             'token' => $admin->createToken('mobile', ['role:admin'])->plainTextToken
         ]);
+    }
+
+    public function logout(Request $request)
+    {
+        if (auth('admins')->check()) {
+            $admin = auth('admins')->user();
+            $admin->tokens()->delete();
+
+            return response()->json(['message' => 'Successfully logged out']);
+        }
+
+        return response()->json(['message' => 'Admin not authenticated'], 401);
     }
 }
